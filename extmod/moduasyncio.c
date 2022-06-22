@@ -144,13 +144,12 @@ STATIC const mp_rom_map_elem_t task_queue_locals_dict_table[] = {
 };
 STATIC MP_DEFINE_CONST_DICT(task_queue_locals_dict, task_queue_locals_dict_table);
 
-STATIC MP_DEFINE_CONST_OBJ_TYPE(
-    task_queue_type,
-    MP_QSTR_TaskQueue,
-    MP_TYPE_FLAG_NONE,
-    make_new, task_queue_make_new,
-    locals_dict, &task_queue_locals_dict
-    );
+STATIC const mp_obj_type_t task_queue_type = {
+    { &mp_type_type },
+    .name = MP_QSTR_TaskQueue,
+    .make_new = task_queue_make_new,
+    .locals_dict = (mp_obj_dict_t *)&task_queue_locals_dict,
+};
 
 /******************************************************************************/
 // Task class
@@ -287,19 +286,24 @@ STATIC mp_obj_t task_iternext(mp_obj_t self_in) {
     return mp_const_none;
 }
 
-STATIC const mp_getiter_iternext_custom_t task_getiter_iternext = {
+STATIC mp_obj_t task_unary_op(mp_unary_op_t op, mp_obj_t self_in) {
+    switch (op) {
+        case MP_UNARY_OP_HASH:
+            return MP_OBJ_NEW_SMALL_INT((mp_uint_t)self_in);
+        default:
+            return MP_OBJ_NULL;      // op not supported
+    }
+}
+
+STATIC const mp_obj_type_t task_type = {
+    { &mp_type_type },
+    .name = MP_QSTR_Task,
+    .make_new = task_make_new,
+    .attr = task_attr,
     .getiter = task_getiter,
     .iternext = task_iternext,
+    .unary_op = task_unary_op,
 };
-
-STATIC MP_DEFINE_CONST_OBJ_TYPE(
-    task_type,
-    MP_QSTR_Task,
-    MP_TYPE_FLAG_ITER_IS_CUSTOM,
-    make_new, task_make_new,
-    attr, task_attr,
-    iter, &task_getiter_iternext
-    );
 
 /******************************************************************************/
 // C-level uasyncio module

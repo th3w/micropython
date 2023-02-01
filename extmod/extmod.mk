@@ -301,10 +301,41 @@ endif
 # networking
 
 ifeq ($(MICROPY_PY_NETWORK_CYW43),1)
+CYW43_DIR = lib/cyw43-driver
+GIT_SUBMODULES += $(CYW43_DIR)
 CFLAGS_EXTMOD += -DMICROPY_PY_NETWORK_CYW43=1
-DRIVERS_SRC_C += drivers/cyw43/cyw43_ctrl.c drivers/cyw43/cyw43_lwip.c
-LIBS += $(TOP)/drivers/cyw43/libcyw43.a
+SRC_THIRDPARTY_C += $(addprefix $(CYW43_DIR)/src/,\
+	cyw43_ctrl.c \
+	cyw43_lwip.c \
+	cyw43_ll.c \
+	cyw43_sdio.c \
+	cyw43_stats.c \
+	)
+ifeq ($(MICROPY_PY_BLUETOOTH),1)
+DRIVERS_SRC_C += drivers/cyw43/cywbt.c
 endif
+PY_O += $(BUILD)/cyw43_resource.o
+
+$(BUILD)/$(CYW43_DIR)/src/cyw43_%.o: CFLAGS += -std=c11
+
+CYW43_FW_FILE = 4343WA1-7.45.98.50.combined
+CYW43_FW_FULLPATH = $(TOP)/$(CYW43_DIR)/firmware/$(CYW43_FW_FILE)
+CYW43_FW_FULLPATH_ = $(shell echo $(CYW43_FW_FULLPATH) | tr /\\-. ___)
+CYW43_FW_PRETTY = fw_$(shell echo $(CYW43_FW_FILE) | tr \\-. __ | cut -d _ -f 1-5)
+CYW43_RESOURCE_SECNAME = .big_const
+CYW43_RESOURCE_SECFLAGS = contents,alloc,load,readonly,data
+
+# cyw43_resource.o contains the WiFi and BT firmware as a binary blob
+$(BUILD)/cyw43_resource.o: $(CYW43_FW_FULLPATH)
+	$(ECHO) "GEN $@"
+	$(Q)$(OBJCOPY) -I binary -O elf32-littlearm -B arm \
+	       --readonly-text \
+	       --rename-section .data=$(CYW43_RESOURCE_SECNAME),$(CYW43_RESOURCE_SECFLAGS) \
+	       --redefine-sym _binary_$(CYW43_FW_FULLPATH_)_start=$(CYW43_FW_PRETTY)_start \
+	       --redefine-sym _binary_$(CYW43_FW_FULLPATH_)_end=$(CYW43_FW_PRETTY)_end \
+	       --redefine-sym _binary_$(CYW43_FW_FULLPATH_)_size=$(CYW43_FW_PRETTY)_size \
+	       $< $@
+endif # MICROPY_PY_NETWORK_CYW43
 
 ifneq ($(MICROPY_PY_NETWORK_WIZNET5K),)
 ifneq ($(MICROPY_PY_NETWORK_WIZNET5K),0)

@@ -117,6 +117,10 @@ uint32_t trng_random_u32(void);
 #define MICROPY_PY_LWIP_REENTER MICROPY_PY_PENDSV_REENTER
 #define MICROPY_PY_LWIP_EXIT    MICROPY_PY_PENDSV_EXIT
 
+#ifndef MICROPY_PY_NETWORK_DEFAULT_HOSTNAME
+#define MICROPY_PY_NETWORK_DEFAULT_HOSTNAME "mpy-mimxrt"
+#endif
+
 #endif
 
 // For regular code that wants to prevent "background tasks" from running.

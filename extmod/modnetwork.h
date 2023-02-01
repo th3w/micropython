@@ -106,4 +106,12 @@ void mod_network_deinit(void);
 void mod_network_register_nic(mp_obj_t nic);
 mp_obj_t mod_network_find_nic(const uint8_t *ip);
 
+extern char mod_network_country_code[2];
+
+#ifndef MICROPY_PY_NETWORK_MAX_HOSTNAME_LEN
+#define MICROPY_PY_NETWORK_MAX_HOSTNAME_LEN (16)
+#endif
+
+extern char mod_network_hostname[MICROPY_PY_NETWORK_MAX_HOSTNAME_LEN];
+
 #endif // MICROPY_INCLUDED_MODNETWORK_H

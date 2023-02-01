@@ -89,9 +89,52 @@ STATIC mp_obj_t network_route(void) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(network_route_obj, network_route);
 
+
+char mod_network_country_code[2] = "XX";
+
+STATIC mp_obj_t network_country(size_t n_args, const mp_obj_t *args) {
+    if (n_args == 0) {
+        return mp_obj_new_str(mod_network_country_code, 2);
+    } else {
+        size_t len;
+        const char *str = mp_obj_str_get_data(args[0], &len);
+        if (len != 2) {
+            mp_raise_ValueError(NULL);
+        }
+        mod_network_country_code[0] = str[0];
+        mod_network_country_code[1] = str[1];
+        return mp_const_none;
+    }
+}
+// TODO: Non-static to allow backwards-compatible pyb.country.
+MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mod_network_country_obj, 0, 1, network_country);
+
+#ifndef MICROPY_PY_NETWORK_DEFAULT_HOSTNAME
+#error "MICROPY_PY_NETWORK_DEFAULT_HOSTNAME must be set in mpconfigport.h or mpconfigboard.h"
+#endif
+
+char mod_network_hostname[MICROPY_PY_NETWORK_MAX_HOSTNAME_LEN] = MICROPY_PY_NETWORK_DEFAULT_HOSTNAME;
+
+STATIC mp_obj_t network_hostname(size_t n_args, const mp_obj_t *args) {
+    if (n_args == 0) {
+        return mp_obj_new_str(mod_network_hostname, strlen(mod_network_hostname));
+    } else {
+        size_t len;
+        const char *str = mp_obj_str_get_data(args[0], &len);
+        if (len >= MICROPY_PY_NETWORK_MAX_HOSTNAME_LEN) {
+            mp_raise_ValueError(NULL);
+        }
+        strcpy(mod_network_hostname, str);
+        return mp_const_none;
+    }
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mod_network_hostname_obj, 0, 1, network_hostname);
+
 STATIC const mp_rom_map_elem_t mp_module_network_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_network) },
     { MP_ROM_QSTR(MP_QSTR_route), MP_ROM_PTR(&network_route_obj) },
+    { MP_ROM_QSTR(MP_QSTR_country), MP_ROM_PTR(&mod_network_country_obj) },
+    { MP_ROM_QSTR(MP_QSTR_hostname), MP_ROM_PTR(&mod_network_hostname_obj) },
 
     // Defined per port in mpconfigport.h
     MICROPY_PORT_NETWORK_INTERFACES

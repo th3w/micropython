@@ -289,6 +289,10 @@ static inline mp_uint_t disable_irq(void) {
 #define MICROPY_PY_LWIP_REENTER MICROPY_PY_PENDSV_REENTER
 #define MICROPY_PY_LWIP_EXIT    MICROPY_PY_PENDSV_EXIT
 
+#ifndef MICROPY_PY_NETWORK_DEFAULT_HOSTNAME
+#define MICROPY_PY_NETWORK_DEFAULT_HOSTNAME "mpy-stm32"
+#endif
+
 #if MICROPY_PY_BLUETOOTH_USE_SYNC_EVENTS
 // Bluetooth code only runs in the scheduler, no locking/mutex required.
 #define MICROPY_PY_BLUETOOTH_ENTER uint32_t atomic_state = 0;

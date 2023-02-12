@@ -1,3 +1,8 @@
 freeze("$(PORT_DIR)/modules")
 include("$(MPY_DIR)/extmod/uasyncio")
-
+require("aiorepl")
+# require("pathlib")
+# require("sdcard")
+# require("time")
+# require("datetime")
+# require("logging")

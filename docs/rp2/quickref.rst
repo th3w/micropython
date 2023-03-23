@@ -175,7 +175,7 @@ for machine.ADC() will disable all other functions of this pin in the internal
 hardware register when creating the ADC object.
 
 Using the ADC channel number 0-4 instead as an argument will create the ADC object 
-without any changes in the internal hardware registers of the respective GPIO pin.
+without any changes to the internal hardware register of the respective GPIO pin.
 
 Use the :ref:`machine.ADC <machine.ADC>` class::
 

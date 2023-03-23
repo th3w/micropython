@@ -170,6 +170,13 @@ GP29 is connected to VSYS). The standard ADC range is 0-3.3V. The fifth
 channel is connected to the in-built temperature sensor and can be used for
 measuring the temperature.
 
+Using the GPIO number 26-29 or a corresponing machine.Pin() object  as an argument 
+for machine.ADC() will disable all other functions of this pin in the internal 
+hardware register when creating the ADC object.
+
+Using the ADC channel number 0-4 instead as an argument will create the ADC object 
+without any changes in the internal hardware registers of the respective GPIO pin.
+
 Use the :ref:`machine.ADC <machine.ADC>` class::
 
     from machine import ADC, Pin
